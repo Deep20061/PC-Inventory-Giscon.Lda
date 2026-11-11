@@ -1,98 +1,136 @@
-# Utilitários de inventário e diagnóstico
+# PC Inventory Utilities
 
-Repositório com código-fonte de utilitários Python para inventário de
-computadores, integração de dados com SQL Server e tarefas agendadas no
-Windows. Os executáveis compilados e os dados locais não fazem parte do
-repositório.
+Python utilities for Windows computer inventory, SQL Server integration, and
+scheduled inventory tasks. Source code is kept separate from PyInstaller
+configuration, tests, local credentials, and generated executables.
 
-## Programas
+## Project layout
 
-| Ficheiro | Função |
+```text
+.
+|-- src/          Python application and diagnostic scripts
+|-- packaging/    PyInstaller spec files
+|-- tests/        Automated tests
+|-- db_credentials.example.json
+|-- requirements.txt
+`-- README.md
+```
+
+## Programs
+
+| Source file | Purpose |
 |---|---|
-| `db_troubleshoot.py` | Lista drivers ODBC e testa uma ligação ao SQL Server. |
-| `pcinventory_pessoal.py` | Recolhe informação de hardware e sistema local. |
-| `gEasy_pcinventory-client.py` | Cliente de inventário, com envio de alterações por e-mail. |
-| `receber-dados.py` | Recebe anexos por POP3 sobre TLS e atualiza o SQL Server. |
-| `tarefa_geasy.py` | Regista e executa uma tarefa semanal do cliente no Windows. |
+| `src/db_troubleshoot.py` | Lists installed ODBC drivers and tests a SQL Server connection. |
+| `src/pcinventory_pessoal.py` | Collects local system and hardware information. |
+| `src/gEasy_pcinventory-client.py` | Inventory client that emails hardware changes. |
+| `src/receber-dados.py` | Receives inventory attachments over POP3/TLS and updates SQL Server. |
+| `src/tarefa_geasy.py` | Creates and runs a weekly Windows scheduled task. |
 
-Os ficheiros `.spec` contêm as configurações PyInstaller disponíveis para
-gerar os executáveis com código-fonte presente. Os diretórios `build/` e
-`dist/` e os ficheiros `.exe` são ignorados pelo Git. O ficheiro
-`easy_pcinventory-client-Giscon.spec` referencia um `.py` que não existe nesta
-pasta, por isso não é incluído.
+`packaging/` contains PyInstaller specs for the available source files. Build
+outputs are written to `build/` and `dist/`; these folders and compiled
+executables are excluded from Git. The local
+`easy_pcinventory-client-Giscon.spec` refers to a source file that is not
+present and is therefore not included.
 
-## Requisitos
+## Requirements
 
-- Python 3.10 ou superior
-- Microsoft ODBC Driver 17 ou 18 for SQL Server para os programas que usam SQL
-- Dependências Python:
+- Python 3.10 or later
+- Microsoft ODBC Driver 17 or 18 for SQL Server for the database utilities
+- Python dependencies:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-Instalação do [Microsoft ODBC Driver for SQL Server](https://learn.microsoft.com/pt-pt/sql/connect/odbc/download-odbc-driver-for-sql-server).
+Install the [Microsoft ODBC Driver for SQL Server](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server).
 
-## Configuração local
-
-Copie `db_credentials.example.json` para `db_credentials.json` e preencha as
-credenciais locais do SQL Server. `db_credentials.json` está excluído do Git.
-O utilitário de diagnóstico aceita também `DB_SERVER`, `DB_DATABASE`,
-`DB_USER`, `DB_PASSWORD` e `DB_DRIVER`. O recetor usa o JSON local e aceita
-`DB_DRIVER` para selecionar o driver. Nunca adicione credenciais reais ao
-repositório ou ao histórico Git.
-
-O cliente de e-mail usa estas variáveis:
-
-| Variável | Programa | Descrição |
-|---|---|---|
-| `SMTP_SENDER` | `gEasy_pcinventory-client.py` | Conta remetente |
-| `SMTP_RECIPIENT` | `gEasy_pcinventory-client.py` | Destinatário |
-| `SMTP_PASSWORD` | `gEasy_pcinventory-client.py` | Palavra-passe do remetente |
-| `SMTP_SERVER` | `gEasy_pcinventory-client.py` | Servidor SMTP com STARTTLS |
-| `SMTP_PORT` | `gEasy_pcinventory-client.py` | Porta SMTP (predefinição: `587`) |
-| `POP3_SERVER` | `receber-dados.py` | Servidor POP3 com TLS |
-| `POP3_PORT` | `receber-dados.py` | Porta POP3 TLS (predefinição: `995`) |
-| `POP3_USER` | `receber-dados.py` | Conta de e-mail |
-| `POP3_PASSWORD` | `receber-dados.py` | Palavra-passe da conta |
-| `INVENTORY_SAVE_DIR` | `receber-dados.py` | Pasta local para anexos recebidos |
-| `DB_CREDENTIALS_FILE` | `receber-dados.py` | Caminho alternativo para o JSON local |
-
-Configure estas variáveis no ambiente Windows antes de executar os programas.
-O código não carrega automaticamente ficheiros `.env`. O cliente SMTP exige
-STARTTLS; o recetor usa POP3 sobre TLS.
-
-## Executar
-
-Na pasta do repositório:
+To build Windows executables, install PyInstaller separately:
 
 ```powershell
-python db_troubleshoot.py --list-drivers
-python db_troubleshoot.py
-python pcinventory_pessoal.py
-python "gEasy_pcinventory-client.py"
-python "receber-dados.py"
-python tarefa_geasy.py
+python -m pip install pyinstaller
 ```
 
-`tarefa_geasy.py` cria uma tarefa agendada no Windows; execute-a apenas num
-computador onde tenha autorização para configurar tarefas agendadas. O
-recetor processa e remove mensagens após a operação; valide a configuração e
-o destino antes de o executar.
+## Local configuration
 
-## Testes
+Copy `db_credentials.example.json` to `db_credentials.json` and enter your
+local SQL Server settings. The real credentials file is ignored by Git.
+
+The database diagnostic also accepts these environment variables, which
+override JSON settings:
+
+| Variable | Description |
+|---|---|
+| `DB_SERVER` | SQL Server host, optionally including an instance |
+| `DB_DATABASE` | Database name |
+| `DB_USER` | SQL authentication user |
+| `DB_PASSWORD` | SQL authentication password |
+| `DB_DRIVER` | Optional installed ODBC driver name |
+
+The mail-enabled programs use environment variables rather than hard-coded
+credentials:
+
+| Variable | Program | Description |
+|---|---|---|
+| `SMTP_SENDER` | Inventory client | Sender account |
+| `SMTP_RECIPIENT` | Inventory client | Recipient address |
+| `SMTP_PASSWORD` | Inventory client | Sender account password |
+| `SMTP_SERVER` | Inventory client | SMTP server with STARTTLS |
+| `SMTP_PORT` | Inventory client | SMTP port (default: `587`) |
+| `POP3_SERVER` | Mail receiver | POP3 server with TLS |
+| `POP3_PORT` | Mail receiver | POP3 TLS port (default: `995`) |
+| `POP3_USER` | Mail receiver | Mail account |
+| `POP3_PASSWORD` | Mail receiver | Mail account password |
+| `INVENTORY_SAVE_DIR` | Mail receiver | Directory for received attachments |
+| `DB_CREDENTIALS_FILE` | Mail receiver | Optional path to the local SQL JSON file |
+
+Set these variables in the Windows environment before running the relevant
+program. The scripts do not automatically load `.env` files. SMTP uses
+STARTTLS; POP3 uses TLS.
+
+## Run from the repository root
+
+```powershell
+python src\db_troubleshoot.py --list-drivers
+python src\db_troubleshoot.py
+python src\pcinventory_pessoal.py
+python "src\gEasy_pcinventory-client.py"
+python "src\receber-dados.py"
+python src\tarefa_geasy.py
+```
+
+The database diagnostic finds `db_credentials.json` relative to the repository,
+even when launched from another working directory. The receiver writes to
+`received/` by default; set `INVENTORY_SAVE_DIR` to change this location.
+
+`tarefa_geasy.py` creates a Windows scheduled task. Run it only on a computer
+where you are authorized to create scheduled tasks. The mail receiver processes
+and deletes messages after handling them; verify its configuration and target
+database before running it.
+
+## Build executables
+
+Run PyInstaller from the repository root so that the spec paths resolve:
+
+```powershell
+python -m PyInstaller --distpath dist --workpath build packaging\db_troubleshoot.spec
+python -m PyInstaller --distpath dist --workpath build packaging\pcinventory_pessoal.spec
+python -m PyInstaller --distpath dist --workpath build packaging\gEasy_pcinventory-client.spec
+python -m PyInstaller --distpath dist --workpath build packaging\receber-dados.spec
+python -m PyInstaller --distpath dist --workpath build packaging\tarefa_geasy.spec
+```
+
+## Tests
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
-Os testes do diagnóstico não necessitam de acesso a uma base de dados real.
+The diagnostic tests do not require access to a live database.
 
-## Segurança e privacidade
+## Security and privacy
 
-- O inventário pode conter nomes de computadores, endereços de rede e números
-  de série. Os relatórios e anexos locais são ignorados pelo Git.
-- Os ficheiros compilados são excluídos; publique apenas código e configuração
-  sem segredos.
-- Se alguma credencial anteriormente embutida no código já foi utilizada,
-  altere-a antes de publicar ou voltar a usar a conta.
+- Inventory reports can contain computer names, network addresses, and serial
+  numbers. Local reports and attachments are excluded from Git.
+- Never commit `db_credentials.json`, `.env` files, passwords, or other secrets.
+- Rotate any credentials that were previously embedded in source code before
+  using the accounts again.

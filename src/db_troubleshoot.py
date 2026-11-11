@@ -229,7 +229,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--config",
         type=Path,
-        default=Path("db_credentials.json"),
+        default=Path(__file__).resolve().parents[1] / "db_credentials.json",
         help="Caminho para o JSON local (predefinição: db_credentials.json).",
     )
     parser.add_argument(

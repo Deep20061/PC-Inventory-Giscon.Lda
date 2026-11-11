@@ -2,8 +2,8 @@
 
 
 a = Analysis(
-    ['tarefa_geasy.py'],
-    pathex=[],
+    ['src/gEasy_pcinventory-client.py'],
+    pathex=['src'],
     binaries=[],
     datas=[],
     hiddenimports=[],
@@ -22,14 +22,14 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='tarefa_geasy',
+    name='gEasy_pcinventory-client',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

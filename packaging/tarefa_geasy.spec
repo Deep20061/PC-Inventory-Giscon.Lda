@@ -2,8 +2,8 @@
 
 
 a = Analysis(
-    ['db_troubleshoot.py'],
-    pathex=[],
+    ['src/tarefa_geasy.py'],
+    pathex=['src'],
     binaries=[],
     datas=[],
     hiddenimports=[],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='db_troubleshoot',
+    name='tarefa_geasy',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

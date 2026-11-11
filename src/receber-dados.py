@@ -14,10 +14,11 @@ POP3_PORT = int(os.environ.get("POP3_PORT", "995"))
 EMAIL_ACCOUNT = os.environ.get("POP3_USER", "")
 EMAIL_PASSWORD = os.environ.get("POP3_PASSWORD", "")
 
-SAVE_BASE_DIR = os.environ.get("INVENTORY_SAVE_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "received"))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SAVE_BASE_DIR = os.environ.get("INVENTORY_SAVE_DIR", os.path.join(PROJECT_ROOT, "received"))
 
 # Default path for credentials JSON file
-CREDENTIALS_FILE = os.environ.get("DB_CREDENTIALS_FILE", os.path.join(os.path.dirname(os.path.abspath(__file__)), "db_credentials.json"))
+CREDENTIALS_FILE = os.environ.get("DB_CREDENTIALS_FILE", os.path.join(PROJECT_ROOT, "db_credentials.json"))
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
