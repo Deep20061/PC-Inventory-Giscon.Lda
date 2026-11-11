@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+db_credentials.json
+
+# Local inventory data and email attachments
+hardware_info.json
+system_info.txt
+pcinventory_pessoal_info.txt
+error_log.txt
+received/
+attachments/
+
+# PyInstaller output and compiled applications
+build/
+dist/
+*.exe
+*.pkg
+easy_pcinventory-client-Giscon.spec
+
+# Per-user editor settings
+.vscode/
